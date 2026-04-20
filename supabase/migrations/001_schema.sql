@@ -34,6 +34,12 @@ create table workspaces (
   created_at timestamptz default now()
 );
 alter table workspaces enable row level security;
+create policy "Authenticated users can create workspaces" on workspaces
+  for insert with check (auth.role() = 'authenticated');
+create policy "Gestores can update workspaces" on workspaces
+  for update using (
+    exists (select 1 from workspace_members where workspace_id = workspaces.id and user_id = auth.uid() and role = 'gestor')
+  );
 
 -- Workspace Members
 create table workspace_members (
@@ -44,6 +50,8 @@ create table workspace_members (
   primary key (workspace_id, user_id)
 );
 alter table workspace_members enable row level security;
+create policy "Members can insert into workspace_members" on workspace_members
+  for insert with check (auth.uid() = user_id);
 
 -- RLS: workspace access
 create policy "Members can read their workspaces" on workspaces
