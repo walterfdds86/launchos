@@ -3,6 +3,7 @@ export type WorkspaceRole = 'gestor' | 'copy' | 'designer' | 'trafego' | 'observ
 export type TaskStatus =
   | 'a_fazer'
   | 'em_andamento'
+  | 'em_revisao'
   | 'aguardando_aprovacao'
   | 'aprovado'
   | 'concluido'
@@ -11,9 +12,9 @@ export type TaskPriority = 'normal' | 'atencao' | 'urgente' | 'bloqueada'
 
 export type TaskType = 'copy' | 'design' | 'trafego' | 'estrategia' | 'outro'
 
-export type LaunchType = 'curso' | 'mentoria' | 'webinar' | 'ebook' | 'evento' | 'outro'
+export type ProjectType = 'lancamento' | 'perpetuo' | 'low_ticket' | 'campanha' | 'outro'
 
-export type LaunchStatus = 'rascunho' | 'ativo' | 'concluido' | 'pausado'
+export type ProjectStatus = 'rascunho' | 'ativo' | 'concluido' | 'pausado'
 
 export interface Workspace {
   id: string
@@ -28,15 +29,16 @@ export interface WorkspaceMember {
   role: WorkspaceRole
   joined_at: string
   user?: { email: string; full_name: string | null }
+  workspace?: Workspace
 }
 
-export interface Launch {
+export interface Project {
   id: string
   workspace_id: string
   name: string
-  type: LaunchType
+  type: ProjectType
   launch_date: string
-  status: LaunchStatus
+  status: ProjectStatus
   created_by: string
   created_at: string
   phases?: Phase[]
@@ -44,7 +46,7 @@ export interface Launch {
 
 export interface Phase {
   id: string
-  launch_id: string
+  project_id: string
   name: string
   order: number
   start_date: string | null
@@ -56,7 +58,7 @@ export interface Phase {
 export interface Task {
   id: string
   phase_id: string
-  launch_id: string
+  project_id: string
   workspace_id: string
   title: string
   description: string | null
@@ -101,8 +103,7 @@ export interface Approval {
   feedback: string | null
   created_at: string
   reviewed_at: string | null
-  task?: Task & { phase?: Phase & { launch?: Launch } }
-  requester?: { full_name: string | null; email: string }
+  task?: Task
 }
 
 export interface DailyFocus {
@@ -110,7 +111,39 @@ export interface DailyFocus {
   workspace_id: string
   user_id: string
   date: string
-  tasks_json: string[]
+  tasks_json: Task[]
   ai_message: string
   created_at: string
+}
+
+export interface ProjectTemplate {
+  id: string
+  type: ProjectType
+  name: string
+  description: string | null
+  phases_json: KickstartPhase[]
+  created_at: string
+}
+
+export interface KickstartPlan {
+  name: string
+  type: ProjectType
+  launch_date: string
+  phases: KickstartPhase[]
+}
+
+export interface KickstartPhase {
+  name: string
+  order: number
+  start_date: string
+  end_date: string
+  objective: string
+  tasks: KickstartTask[]
+}
+
+export interface KickstartTask {
+  title: string
+  type: TaskType
+  due_date: string
+  priority: TaskPriority
 }
