@@ -166,9 +166,9 @@ Tabs at top switch between project phases. Each tab shows phase name + task coun
 
 Filter bar: All | Copy | Design | Trafego — filters cards client-side by `task.type`.
 
-### Briefing IA button
+### Briefing IA por card
 
-Topbar button "Briefing IA" — opens a modal. User selects a task. System calls `POST /api/ai/briefing` which calls Claude with task context (title, type, project name, persona from project description) and returns a structured briefing. Briefing is saved to `tasks.description` and shown in the task detail.
+Each KanbanCard has a three-dot context menu. One option is "Gerar Briefing IA". System calls `POST /api/ai/briefing` which calls Claude with task context (title, type, project name, persona from project description) and returns a structured briefing. Briefing is saved to `tasks.description` and shown in the task detail.
 
 ---
 
