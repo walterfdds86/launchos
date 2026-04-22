@@ -15,7 +15,7 @@ export default async function SettingsPage() {
 
   if (!membership) redirect('/onboarding')
 
-  const workspace = membership.workspace as { name: string; slug: string } | null
+  const workspace = (Array.isArray(membership.workspace) ? membership.workspace[0] : membership.workspace) as { name: string; slug: string } | null
 
   return (
     <>

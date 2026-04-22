@@ -27,7 +27,7 @@ export default async function TimePage() {
       <div className="flex-1 overflow-y-auto p-6">
         <div className="max-w-2xl space-y-3">
           {(members ?? []).map((m, i) => {
-            const profile = m.user as { full_name: string | null; email: string } | null
+            const profile = (Array.isArray(m.user) ? m.user[0] : m.user) as { full_name: string | null; email: string } | null
             const name = profile?.full_name ?? profile?.email ?? '—'
             const initial = name[0].toUpperCase()
             return (
