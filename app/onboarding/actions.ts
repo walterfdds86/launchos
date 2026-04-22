@@ -10,22 +10,11 @@ export async function createWorkspace(name: string) {
 
   const slug = `${name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}-${Date.now()}`
 
-  const { data: workspace, error: wsError } = await supabase
-    .from('workspaces')
-    .insert({ name, slug })
-    .select()
-    .single()
+  const { data: workspaceId, error } = await supabase
+    .rpc('create_workspace_for_user', { p_name: name, p_slug: slug })
 
-  if (wsError || !workspace) {
-    return { error: 'Erro ao criar workspace: ' + (wsError?.message ?? 'tente novamente') }
-  }
-
-  const { error: memberError } = await supabase
-    .from('workspace_members')
-    .insert({ workspace_id: workspace.id, user_id: user.id, role: 'gestor' })
-
-  if (memberError) {
-    return { error: 'Erro ao configurar seu acesso: ' + memberError.message }
+  if (error || !workspaceId) {
+    return { error: 'Erro ao criar workspace: ' + (error?.message ?? 'tente novamente') }
   }
 
   redirect('/dashboard')
