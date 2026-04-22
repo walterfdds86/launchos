@@ -2,10 +2,10 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { Topbar } from '@/components/layout/Topbar'
 import { StatsRow } from '@/components/dashboard/StatsRow'
-import { LaunchCard } from '@/components/dashboard/LaunchCard'
+import { ProjectCard } from '@/components/dashboard/ProjectCard'
 import { AlertsList } from '@/components/dashboard/AlertsList'
 import { computePriority } from '@/lib/utils/priority'
-import type { Task } from '@/types'
+import type { Task, Project, Phase } from '@/types'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -23,9 +23,9 @@ export default async function DashboardPage() {
 
   const workspaceId = membership.workspace_id
 
-  const [{ data: launches }, { data: allTasks }] = await Promise.all([
+  const [{ data: projects }, { data: allTasks }] = await Promise.all([
     supabase
-      .from('launches')
+      .from('projects')
       .select('*, phases:launch_phases(*, tasks(status))')
       .eq('workspace_id', workspaceId)
       .eq('status', 'ativo')
@@ -34,7 +34,8 @@ export default async function DashboardPage() {
       .from('tasks')
       .select('*, assignee:profiles!assigned_to(full_name, email)')
       .eq('workspace_id', workspaceId)
-      .not('status', 'in', ['aprovado', 'concluido']),
+      .neq('status', 'aprovado')
+      .neq('status', 'concluido'),
   ])
 
   const tasks = (allTasks ?? []) as Task[]
@@ -53,13 +54,12 @@ export default async function DashboardPage() {
         .then(({ count }) => count)
 
   const overdueCount = tasksWithPriority.filter((t) => ['urgente', 'bloqueada'].includes(t.priority)).length
-  const completedThisWeek = 0
 
   const stats = [
-    { label: 'Lançamentos Ativos', value: launches?.length ?? 0, sub: 'workspaces ativo', variant: 'default' as const },
+    { label: 'Projetos Ativos', value: projects?.length ?? 0, sub: 'em andamento', variant: 'default' as const },
     { label: 'Tarefas Atrasadas', value: overdueCount, sub: 'urgente ou bloqueada', variant: overdueCount > 0 ? 'red' as const : 'default' as const },
     { label: 'Aguardando Aprovação', value: pendingApprovals ?? 0, sub: 'no seu inbox', variant: (pendingApprovals ?? 0) > 0 ? 'amber' as const : 'default' as const },
-    { label: 'Concluídas (semana)', value: completedThisWeek, sub: '↑ em breve', variant: 'green' as const },
+    { label: 'Concluídas (semana)', value: 0, sub: '↑ em breve', variant: 'green' as const },
   ]
 
   return (
@@ -67,21 +67,17 @@ export default async function DashboardPage() {
       <Topbar title="Dashboard" />
       <div className="flex-1 overflow-y-auto p-6 space-y-6">
         <StatsRow stats={stats} />
-
         <div>
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-sm font-semibold text-zinc-300">Lançamentos Ativos</h2>
-          </div>
+          <h2 className="text-sm font-semibold text-zinc-300 mb-3">Projetos Ativos</h2>
           <div className="grid grid-cols-2 gap-3">
-            {(launches ?? []).map((launch) => (
-              <LaunchCard key={launch.id} launch={launch as any} />
+            {(projects ?? []).map((project) => (
+              <ProjectCard key={project.id} project={project as Project & { phases: (Phase & { tasks: { status: string }[] })[] }} />
             ))}
-            {!launches?.length && (
-              <p className="text-sm text-zinc-600 col-span-2">Nenhum lançamento ativo.</p>
+            {!projects?.length && (
+              <p className="text-sm text-zinc-600 col-span-2">Nenhum projeto ativo.</p>
             )}
           </div>
         </div>
-
         <div className="grid grid-cols-3 gap-4">
           <div className="col-span-2">
             <h2 className="text-sm font-semibold text-zinc-300 mb-3">Aprovações Pendentes</h2>

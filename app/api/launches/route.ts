@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
   if (!workspaceId) return NextResponse.json({ error: 'workspace_id required' }, { status: 400 })
 
   const { data, error } = await supabase
-    .from('launches')
+    .from('projects')
     .select('*, phases:launch_phases(*, tasks(id, status))')
     .eq('workspace_id', workspaceId)
     .order('launch_date')
@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
 
   const body = await req.json()
   const { data, error } = await supabase
-    .from('launches')
+    .from('projects')
     .insert({ ...body, created_by: user.id })
     .select()
     .single()

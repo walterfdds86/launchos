@@ -1,8 +1,8 @@
-import type { Launch, Phase, Task, WorkspaceMember } from '@/types'
+import type { Project, Phase, Task, WorkspaceMember } from '@/types'
 import { format, parseISO } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 
-export function buildLaunchContext(launch: Launch, phases: Phase[]): string {
+export function buildLaunchContext(launch: Project, phases: Phase[]): string {
   const lines: string[] = [
     `LANÇAMENTO: ${launch.name}`,
     `TIPO: ${launch.type}`,

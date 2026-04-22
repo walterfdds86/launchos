@@ -103,6 +103,7 @@ export interface Approval {
   feedback: string | null
   created_at: string
   reviewed_at: string | null
+  requester?: { full_name: string | null; email: string }
   task?: Task
 }
 

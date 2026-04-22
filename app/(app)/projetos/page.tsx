@@ -2,10 +2,11 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Topbar } from '@/components/layout/Topbar'
-import { LaunchCard } from '@/components/dashboard/LaunchCard'
+import { ProjectCard } from '@/components/dashboard/ProjectCard'
 import { Button } from '@/components/ui/button'
+import type { Project, Phase } from '@/types'
 
-export default async function LancamentosPage() {
+export default async function ProjetosPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
@@ -16,34 +17,34 @@ export default async function LancamentosPage() {
     .eq('user_id', user.id)
     .single()
 
-  if (!membership) redirect('/login')
+  if (!membership) redirect('/onboarding')
 
-  const { data: launches } = await supabase
-    .from('launches')
+  const { data: projects } = await supabase
+    .from('projects')
     .select('*, phases:launch_phases(*, tasks(id, status))')
     .eq('workspace_id', membership.workspace_id)
     .order('launch_date')
 
   return (
     <>
-      <Topbar title="Lançamentos" />
+      <Topbar title="Projetos" />
       <div className="flex-1 overflow-y-auto p-6">
         <div className="flex items-center justify-between mb-6">
-          <p className="text-xs text-zinc-500">{launches?.length ?? 0} lançamentos</p>
+          <p className="text-xs text-zinc-500">{projects?.length ?? 0} projetos</p>
           {membership.role === 'gestor' && (
-            <Link href="/lancamentos/novo">
+            <Link href="/projetos/novo">
               <Button size="sm" className="bg-violet-600 hover:bg-violet-700">
-                + Novo Lançamento
+                + Novo Projeto
               </Button>
             </Link>
           )}
         </div>
         <div className="grid grid-cols-2 gap-3">
-          {(launches ?? []).map((l) => (
-            <LaunchCard key={l.id} launch={l as any} />
+          {(projects ?? []).map((p) => (
+            <ProjectCard key={p.id} project={p as Project & { phases: (Phase & { tasks: { status: string }[] })[] }} />
           ))}
-          {!launches?.length && (
-            <p className="text-sm text-zinc-600 col-span-2">Nenhum lançamento criado ainda.</p>
+          {!projects?.length && (
+            <p className="text-sm text-zinc-600 col-span-2">Nenhum projeto criado ainda.</p>
           )}
         </div>
       </div>

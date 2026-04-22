@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
       .neq('status', 'aprovado')
       .neq('status', 'concluido'),
     supabase
-      .from('launches')
+      .from('projects')
       .select('*, phases:launch_phases(*, tasks(*))')
       .eq('workspace_id', workspaceId)
       .eq('status', 'ativo')

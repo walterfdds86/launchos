@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #0f0f13; color: #e2e8f0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; padding: 20px; }
+h2 { font-size: 17px; font-weight: 700; color: white; margin-bottom: 3px; }
+.sub { font-size: 12px; color: #64748b; margin-bottom: 16px; }
+
+/* Top bar */
+.topbar { display: flex; align-items: center; justify-content: space-between; background: #17171f; border: 1px solid #1e1e2e; border-radius: 10px; padding: 10px 16px; margin-bottom: 14px; }
+.project-title { font-size: 14px; font-weight: 700; color: white; }
+.project-type { font-size: 10px; background: #1e1a2e; color: #a78bfa; padding: 2px 8px; border-radius: 12px; margin-left: 8px; }
+.topbar-right { display: flex; gap: 8px; align-items: center; }
+.filter-btn { background: #1a1a2e; border: 1px solid #334155; border-radius: 6px; padding: 5px 10px; font-size: 11px; color: #94a3b8; cursor: pointer; }
+.filter-btn.active { background: #2d1f5e; border-color: #7c3aed; color: #a78bfa; }
+.phase-tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+.phase-tab { padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 600; cursor: pointer; border: 1px solid #1e1e2e; color: #64748b; background: #17171f; }
+.phase-tab.active { background: #2d1f5e; border-color: #7c3aed; color: #a78bfa; }
+.phase-tab .count { background: #1e1a2e; border-radius: 8px; padding: 1px 6px; margin-left: 5px; font-size: 10px; }
+
+/* Board */
+.board { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+.col { background: #17171f; border-radius: 10px; padding: 10px; border: 1px solid #1e1e2e; min-height: 420px; }
+.col-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.col-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
+.col-count { font-size: 10px; background: #12121a; color: #475569; padding: 2px 7px; border-radius: 10px; }
+
+/* Status colors */
+.col-afazer .col-title { color: #64748b; }
+.col-andamento .col-title { color: #3b82f6; }
+.col-revisao .col-title { color: #f59e0b; }
+.col-aprovacao .col-title { color: #a78bfa; }
+.col-concluido .col-title { color: #10b981; }
+
+/* Cards */
+.card { background: #12121a; border-radius: 8px; padding: 10px; margin-bottom: 7px; border-left: 3px solid #334155; cursor: grab; transition: transform .1s; }
+.card:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,.4); }
+.card.copy { border-left-color: #3b82f6; }
+.card.design { border-left-color: #ec4899; }
+.card.trafego { border-left-color: #f59e0b; }
+.card.estrategia { border-left-color: #10b981; }
+.card.urgente { border-left-color: #ef4444; }
+.card-title { font-size: 12px; color: #e2e8f0; font-weight: 500; margin-bottom: 6px; line-height: 1.4; }
+.card-meta { display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+.tag { font-size: 9px; padding: 2px 6px; border-radius: 8px; font-weight: 600; }
+.tag-copy { background: #1e3a5f; color: #60a5fa; }
+.tag-design { background: #3b1230; color: #f472b6; }
+.tag-trafego { background: #3b2800; color: #fbbf24; }
+.tag-estrategia { background: #0d2b1e; color: #34d399; }
+.due { font-size: 10px; color: #475569; }
+.due.late { color: #ef4444; }
+.due.soon { color: #f59e0b; }
+.assignee { width: 18px; height: 18px; border-radius: 50%; background: #2d1f5e; color: #a78bfa; font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-left: auto; }
+.ai-badge { font-size: 9px; background: #1e1a2e; color: #7c3aed; padding: 1px 5px; border-radius: 6px; }
+
+/* Progress bar */
+.progress-bar { height: 3px; background: #1e1e2e; border-radius: 2px; margin-top: 6px; }
+.progress-fill { height: 100%; border-radius: 2px; background: #7c3aed; }
+
+.add-card { width: 100%; background: transparent; border: 1px dashed #1e1e2e; border-radius: 7px; padding: 7px; font-size: 11px; color: #334155; cursor: pointer; margin-top: 4px; }
+.add-card:hover { border-color: #334155; color: #475569; }
+
+/* Legend */
+.legend { display: flex; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+.legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: #475569; }
+.legend-dot { width: 10px; height: 10px; border-radius: 2px; }
+</style>
+</head>
+<body>
+<h2>Secao 3 — Kanban por Fase</h2>
+<p class="sub">Visao completa do projeto — gestor ve tudo, filtra por papel, arrasta para mover</p>
+
+<div class="topbar">
+  <div style="display:flex;align-items:center">
+    <span class="project-title">Curso Instagram para Negocios</span>
+    <span class="project-type">lancamento</span>
+  </div>
+  <div class="topbar-right">
+    <button class="filter-btn active">Todos</button>
+    <button class="filter-btn">copy</button>
+    <button class="filter-btn">design</button>
+    <button class="filter-btn">trafego</button>
+    <button class="filter-btn" style="background:#2d1f5e;border-color:#7c3aed;color:#a78bfa">&#129302; Briefing IA</button>
+  </div>
+</div>
+
+<div class="phase-tabs">
+  <div class="phase-tab active">Pre-lancamento <span class="count">9</span></div>
+  <div class="phase-tab">Lancamento <span class="count">6</span></div>
+  <div class="phase-tab">Pos-lancamento <span class="count">3</span></div>
+  <div class="phase-tab" style="margin-left:auto;background:#0a1a0a;border-color:#166534;color:#4ade80">D-18 para o lancamento</div>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#3b82f6"></div>Copy</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#ec4899"></div>Design</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div>Trafego</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#10b981"></div>Estrategia</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#ef4444"></div>Urgente</div>
+</div>
+
+<div class="board">
+
+  <!-- A FAZER -->
+  <div class="col col-afazer">
+    <div class="col-header"><span class="col-title">A Fazer</span><span class="col-count">4</span></div>
+
+    <div class="card copy">
+      <div class="card-title">Pagina de captura — headline e copy</div>
+      <div class="card-meta"><span class="tag tag-copy">copy</span><span class="due soon">D-5</span><span class="assignee">M</span></div>
+    </div>
+
+    <div class="card design">
+      <div class="card-title">Banner anuncio — 3 versoes criativo</div>
+      <div class="card-meta"><span class="tag tag-design">design</span><span class="due">D-6</span><span class="assignee">L</span></div>
+    </div>
+
+    <div class="card copy">
+      <div class="card-title">VSL — roteiro e script completo</div>
+      <div class="card-meta"><span class="tag tag-copy">copy</span><span class="due">D-8</span><span class="assignee">M</span></div>
+      <div class="progress-bar"><div class="progress-fill" style="width:20%"></div></div>
+    </div>
+
+    <div class="card trafego">
+      <div class="card-title">Pixel e evento de conversao configurado</div>
+      <div class="card-meta"><span class="tag tag-trafego">trafego</span><span class="due">D-12</span><span class="assignee">R</span></div>
+    </div>
+
+    <button class="add-card">+ Adicionar tarefa</button>
+  </div>
+
+  <!-- EM ANDAMENTO -->
+  <div class="col col-andamento">
+    <div class="col-header"><span class="col-title">Em Andamento</span><span class="col-count">2</span></div>
+
+    <div class="card design">
+      <div class="card-title">Identidade visual do lancamento</div>
+      <div class="card-meta"><span class="tag tag-design">design</span><span class="due soon">D-3</span><span class="assignee">L</span></div>
+      <div class="progress-bar"><div class="progress-fill" style="width:65%"></div></div>
+    </div>
+
+    <div class="card trafego">
+      <div class="card-title">Publicos e segmentacoes no Ads Manager</div>
+      <div class="card-meta"><span class="tag tag-trafego">trafego</span><span class="due">D-7</span><span class="assignee">R</span></div>
+      <div class="progress-bar"><div class="progress-fill" style="width:40%"></div></div>
+    </div>
+
+    <button class="add-card">+ Adicionar tarefa</button>
+  </div>
+
+  <!-- EM REVISAO -->
+  <div class="col col-revisao">
+    <div class="col-header"><span class="col-title">Em Revisao</span><span class="col-count">1</span></div>
+
+    <div class="card urgente">
+      <div class="card-title">Sequencia de e-mails pre-lancamento</div>
+      <div class="card-meta"><span class="tag tag-copy">copy</span><span class="due late">Atrasado</span><span class="ai-badge">&#129302; briefing</span></div>
+    </div>
+
+    <button class="add-card">+ Adicionar tarefa</button>
+  </div>
+
+  <!-- AGUARDANDO APROVACAO -->
+  <div class="col col-aprovacao">
+    <div class="col-header"><span class="col-title">Aprovacao</span><span class="col-count">2</span></div>
+
+    <div class="card design" style="border-left-color:#a78bfa">
+      <div class="card-title">Logo — 3 variacoes para escolha</div>
+      <div class="card-meta"><span class="tag tag-design">design</span><span class="due" style="color:#a78bfa">2h aguardando</span><span class="assignee" style="background:#3d1a6e">W</span></div>
+    </div>
+
+    <div class="card copy" style="border-left-color:#a78bfa">
+      <div class="card-title">Bio e posicionamento do perfil</div>
+      <div class="card-meta"><span class="tag tag-copy">copy</span><span class="due" style="color:#a78bfa">1d aguardando</span><span class="assignee" style="background:#3d1a6e">W</span></div>
+    </div>
+
+    <button class="add-card">+ Adicionar tarefa</button>
+  </div>
+
+  <!-- CONCLUIDO -->
+  <div class="col col-concluido">
+    <div class="col-header"><span class="col-title">Concluido</span><span class="col-count">2</span></div>
+
+    <div class="card" style="border-left-color:#10b981;opacity:.7">
+      <div class="card-title">Briefing do produto e persona</div>
+      <div class="card-meta"><span class="tag" style="background:#0d2b1e;color:#34d399">estrategia</span><span class="due" style="color:#10b981">&#10003; feito</span></div>
+    </div>
+
+    <div class="card" style="border-left-color:#10b981;opacity:.7">
+      <div class="card-title">Definicao de meta e KPIs</div>
+      <div class="card-meta"><span class="tag" style="background:#0d2b1e;color:#34d399">estrategia</span><span class="due" style="color:#10b981">&#10003; feito</span></div>
+    </div>
+
+    <button class="add-card">+ Adicionar tarefa</button>
+  </div>
+
+</div>
+
+<div style="margin-top:16px;background:#1e1a2e;border:1px solid rgba(124,58,237,0.3);border-radius:8px;padding:12px 14px;font-size:12px;color:#a78bfa;line-height:1.6;">
+  &#128161; <strong>Diferenciais vs Trello/ClickUp:</strong> (1) colunas sao os STATUS de producao — nao apenas listas; (2) cor da borda = papel da equipe — gestor ve quem esta travado; (3) botao "Briefing IA" gera o briefing completo da tarefa em 1 clique; (4) contador regressivo do lancamento sempre visivel.
+</div>
+</body>
+</html>

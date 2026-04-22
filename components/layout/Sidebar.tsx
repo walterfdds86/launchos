@@ -7,14 +7,14 @@ import { useWorkspace } from '@/hooks/useWorkspace'
 
 const gestorNav = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/lancamentos', label: 'Lançamentos', icon: Rocket },
+  { href: '/projetos', label: 'Projetos', icon: Rocket },
   { href: '/aprovacoes', label: 'Aprovações', icon: CheckSquare },
   { href: '/time', label: 'Time', icon: Users },
 ]
 
 const memberNav = [
   { href: '/meu-dia', label: 'Meu Dia', icon: Sun },
-  { href: '/lancamentos', label: 'Lançamentos', icon: Rocket },
+  { href: '/projetos', label: 'Projetos', icon: Rocket },
 ]
 
 export function Sidebar() {
