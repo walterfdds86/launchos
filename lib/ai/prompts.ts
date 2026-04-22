@@ -61,3 +61,60 @@ ${membersContext}
 
 Responda em JSON: { "suggested_user_id": "uuid", "reason": "string (1 frase)" }`
 }
+
+export function kickstartFromDescriptionPrompt(description: string, today: string): string {
+  return `Hoje é ${today}. O usuário descreveu o seguinte projeto de marketing digital:
+
+"${description}"
+
+Retorne APENAS um objeto JSON válido (sem markdown, sem explicações) com esta estrutura exata:
+
+{
+  "name": "nome do projeto",
+  "type": "lancamento" | "perpetuo" | "low_ticket" | "campanha" | "outro",
+  "launch_date": "YYYY-MM-DD",
+  "phases": [
+    {
+      "name": "nome da fase",
+      "order": 1,
+      "start_date": "YYYY-MM-DD",
+      "end_date": "YYYY-MM-DD",
+      "objective": "objetivo da fase em uma frase",
+      "tasks": [
+        {
+          "title": "título da tarefa",
+          "type": "copy" | "design" | "trafego" | "estrategia" | "outro",
+          "due_date": "YYYY-MM-DD",
+          "priority": "normal" | "atencao" | "urgente"
+        }
+      ]
+    }
+  ]
+}
+
+Regras:
+- Máximo 3 fases (Pré-projeto, Execução, Pós-projeto — adapte os nomes ao tipo)
+- Máximo 8 tarefas por fase
+- Distribua as datas a partir de hoje até a data do lançamento/conclusão
+- Se o usuário não mencionou prazo, assuma 30 dias a partir de hoje
+- Inclua apenas tarefas essenciais — sem fluff`
+}
+
+export function briefingPrompt(taskTitle: string, taskType: string, projectName: string, projectDescription: string): string {
+  return `Gere um briefing completo e prático para a seguinte tarefa de marketing:
+
+Projeto: ${projectName}
+Contexto do projeto: ${projectDescription}
+Tarefa: ${taskTitle}
+Tipo: ${taskType}
+
+O briefing deve conter:
+1. Objetivo da tarefa (1-2 frases)
+2. Entregável esperado (o que exatamente deve ser produzido)
+3. Tom e estilo (baseado no tipo do projeto)
+4. Pontos obrigatórios a cobrir
+5. O que NÃO fazer
+6. Referências ou exemplos sugeridos (genéricos, sem inventar URLs)
+
+Seja direto, prático e específico. Máximo 300 palavras.`
+}
