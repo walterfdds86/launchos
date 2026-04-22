@@ -23,9 +23,9 @@ export function Sidebar() {
   const nav = member?.role === 'gestor' ? gestorNav : memberNav
 
   return (
-    <aside className="w-[220px] bg-[#17171f] border-r border-white/5 flex flex-col shrink-0 h-screen sticky top-0">
-      <div className="px-4 py-5 border-b border-white/5">
-        <span className="text-[15px] font-bold text-white">
+    <aside className="w-[220px] border-r flex flex-col shrink-0 h-screen sticky top-0" style={{ background: 'var(--app-surface)', borderColor: 'var(--app-border)' }}>
+      <div className="px-4 py-5 border-b" style={{ borderColor: 'var(--app-border)' }}>
+        <span className="text-[15px] font-bold" style={{ color: 'var(--app-text)' }}>
           launch<span className="text-violet-500">os</span>
         </span>
       </div>
@@ -37,9 +37,14 @@ export function Sidebar() {
             className={cn(
               'flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors',
               pathname === href || pathname.startsWith(href + '/')
-                ? 'bg-violet-950/50 text-violet-400 font-medium'
-                : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/5'
+                ? 'bg-violet-950/50 text-violet-400 font-medium dark:bg-violet-950/50'
+                : ''
             )}
+            style={
+              pathname === href || pathname.startsWith(href + '/')
+                ? undefined
+                : { color: 'var(--app-text-muted)' }
+            }
           >
             <Icon size={15} />
             {label}
@@ -48,7 +53,8 @@ export function Sidebar() {
         <div className="pt-4">
           <Link
             href="/settings"
-            className="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-zinc-500 hover:text-zinc-300 hover:bg-white/5 transition-colors"
+            className="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors hover:bg-black/5 dark:hover:bg-white/5"
+            style={{ color: 'var(--app-text-subtle)' }}
           >
             <Settings size={15} />
             Configurações
